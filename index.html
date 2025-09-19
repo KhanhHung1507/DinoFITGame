@@ -1,253 +1,281 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<link rel="stylesheet" href="style.css">
-<div id="background"></div>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Game Khủng Long FIT - ĐH KHTN</title>
-<style>
-  /* Reset và căn giữa */
-  * {
-    margin: 0; padding: 0; box-sizing: border-box;
-  }
-  body, html {
-    height: 100%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: url('background-khtn.jpg') no-repeat center center fixed;
-    background-size: cover;
-    overflow: hidden;
-    user-select: none;
-  }
-  #gameContainer {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-  }
-  /* Khủng long */
-  #dino {
-    position: absolute;
-    bottom: 100px;
-    left: 50px;
-    width: 80px;
-    height: 80px;
-    background: url('dino-fit.png') no-repeat center/contain;
-    transition: bottom 0.2s;
-    z-index: 10;
-  }
-  /* Khung chat (bubble) */
-  #chatBubble {
-    position: absolute;
-    background: rgba(255,255,255,0.9);
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #333;
-    max-width: 180px;
-    font-size: 14px;
-    display: none;
-    z-index: 20;
-  }
+  <meta charset="UTF-8" /> <!-- Chuyển lên đầu -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Khủng Long FIT - ĐH KHTN</title>
+  <link rel="stylesheet" href="style.css">
 
-  /* Cây xương rồng (chướng ngại vật) */
-  .cactus {
-    position: absolute;
-    bottom: 100px;
-    width: 40px;
-    height: 80px;
-    background: green;
-    border-radius: 8px;
-    /* Tạm để chữ môn học */
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    line-height: 80px;
-    font-size: 12px;
-    user-select: none;
-  }
-
-  /* Animation chạy cactus */
-  @keyframes moveLeft {
-    0% {
-      right: -50px;
+  <style>
+    /* Reset và căn giữa */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
     }
-    100% {
-      right: 110vw;
+    body, html {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      user-select: none;
     }
-  }
-
-  .cactus.move {
-    animation: moveLeft linear forwards;
-  }
-
-  /* Thông báo hướng dẫn */
-  #info {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    background: rgba(0,0,0,0.4);
-    padding: 8px 15px;
-    border-radius: 8px;
-    font-size: 16px;
-    user-select: none;
-  }
-
-</style>
+    
+    /* Background ảnh trường - dùng div riêng để dễ kiểm soát */
+    #background {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: -1;
+      background-image: url('background-khtn.jpg');
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+    /* Responsive cho mobile */
+    @media (max-width: 768px) {
+      #background {
+        background-size: contain;
+        background-position: center top;
+        background-repeat: no-repeat;
+        background-attachment: scroll; /* tránh lỗi trên mobile */
+        background-color: white;
+      }
+    }
+    
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    /* Khủng long */
+    #dino {
+      position: absolute;
+      bottom: 100px;
+      left: 50px;
+      width: 80px;
+      height: 80px;
+      background: url('dino-fit.png') no-repeat center/contain;
+      transition: bottom 0.2s;
+      z-index: 10;
+    }
+    
+    /* Khung chat (bubble) */
+    #chatBubble {
+      position: absolute;
+      background: rgba(255,255,255,0.9);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      max-width: 180px;
+      font-size: 14px;
+      display: none;
+      z-index: 20;
+      user-select: none;
+    }
+    
+    /* Cây xương rồng (chướng ngại vật) */
+    .cactus {
+      position: absolute;
+      bottom: 100px;
+      width: 40px;
+      height: 80px;
+      background: green;
+      border-radius: 8px;
+      /* Tạm để chữ môn học */
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      line-height: 80px;
+      font-size: 12px;
+      user-select: none;
+    }
+    
+    /* Animation chạy cactus */
+    @keyframes moveLeft {
+      0% {
+        right: -50px;
+      }
+      100% {
+        right: 110vw;
+      }
+    }
+    
+    .cactus.move {
+      animation: moveLeft linear forwards;
+    }
+    
+    /* Thông báo hướng dẫn */
+    #info {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      background: rgba(0,0,0,0.4);
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-size: 16px;
+      user-select: none;
+      z-index: 15;
+    }
+  </style>
 </head>
 <body>
-<div id="gameContainer">
-  <div id="dino"></div>
-  <div id="chatBubble"></div>
-  <div id="info">Nhấn Space hoặc click/chạm để khủng long nhảy và xem thông tin môn học</div>
-</div>
 
-<script>
-  const dino = document.getElementById('dino');
-  const chatBubble = document.getElementById('chatBubble');
-  const gameContainer = document.getElementById('gameContainer');
+  <!-- Chuyển div background ra ngoài body -->
+  <div id="background"></div>
 
-  // Danh sách môn học (cactus info)
-  const courses = [
-    { name: 'Lập trình C', info: 'Môn học cơ bản về lập trình ngôn ngữ C.' },
-    { name: 'Cơ sở dữ liệu', info: 'Học về quản lý và xử lý dữ liệu.' },
-    { name: 'Mạng máy tính', info: 'Tìm hiểu về các giao thức mạng và truyền dữ liệu.' }
-  ];
+  <div id="gameContainer">
+    <div id="dino"></div>
+    <div id="chatBubble"></div>
+    <div id="info">Nhấn Space hoặc click/chạm để khủng long nhảy và xem thông tin môn học</div>
+  </div>
 
-  // Tạo cây xương rồng (cactus)
-  let cactusIndex = 0;
+  <script>
+    const dino = document.getElementById('dino');
+    const chatBubble = document.getElementById('chatBubble');
+    const gameContainer = document.getElementById('gameContainer');
 
-  function createCactus() {
-    const cactus = document.createElement('div');
-    cactus.classList.add('cactus');
-    // Gán môn học
-    const course = courses[cactusIndex % courses.length];
-    cactus.textContent = course.name;
-    cactus.dataset.name = course.name;
-    cactus.dataset.info = course.info;
+    // Danh sách môn học (cactus info)
+    const courses = [
+      { name: 'Lập trình C', info: 'Môn học cơ bản về lập trình ngôn ngữ C.' },
+      { name: 'Cơ sở dữ liệu', info: 'Học về quản lý và xử lý dữ liệu.' },
+      { name: 'Mạng máy tính', info: 'Tìm hiểu về các giao thức mạng và truyền dữ liệu.' }
+    ];
 
-    cactus.style.bottom = '100px';
-    cactus.style.right = '-50px';
+    // Tạo cây xương rồng (cactus)
+    let cactusIndex = 0;
 
-    // Thời gian chạy cây xương rồng
-    const duration = 7000; // 7 giây để chạy hết màn hình
-    cactus.style.animationDuration = duration + 'ms';
-    cactus.classList.add('move');
+    function createCactus() {
+      const cactus = document.createElement('div');
+      cactus.classList.add('cactus');
+      // Gán môn học
+      const course = courses[cactusIndex % courses.length];
+      cactus.textContent = course.name;
+      cactus.dataset.name = course.name;
+      cactus.dataset.info = course.info;
 
-    gameContainer.appendChild(cactus);
+      cactus.style.bottom = '100px';
+      cactus.style.right = '-50px';
 
-    // Xoá cây khi hết animation
-    cactus.addEventListener('animationend', () => {
-      cactus.remove();
-    });
+      // Thời gian chạy cây xương rồng
+      const duration = 7000; // 7 giây để chạy hết màn hình
+      cactus.style.animationDuration = duration + 'ms';
+      cactus.classList.add('move');
 
-    cactusIndex++;
-    return cactus;
-  }
+      gameContainer.appendChild(cactus);
 
-  // Tạo liên tục cây xương rồng
-  setInterval(() => {
-    createCactus();
-  }, 3000);
+      // Xoá cây khi hết animation
+      cactus.addEventListener('animationend', () => {
+        cactus.remove();
+      });
 
-  // Nhảy dino
-  let isJumping = false;
-  let jumpHeight = 150;
-  let jumpDuration = 600;
+      cactusIndex++;
+      return cactus;
+    }
 
-  function jump() {
-    if (isJumping) return;
-    isJumping = true;
+    // Tạo liên tục cây xương rồng
+    setInterval(() => {
+      createCactus();
+    }, 3000);
 
-    // Nhảy lên
-    dino.style.transition = `bottom ${jumpDuration / 2}ms ease-out`;
-    dino.style.bottom = 100 + jumpHeight + 'px';
+    // Nhảy dino
+    let isJumping = false;
+    let jumpHeight = 150;
+    let jumpDuration = 600;
 
-    // Hiện khung chat ở trên khủng long
-    showChatBubble();
+    function jump() {
+      if (isJumping) return;
+      isJumping = true;
 
-    setTimeout(() => {
-      // Rơi xuống
-      dino.style.transition = `bottom ${jumpDuration / 2}ms ease-in`;
-      dino.style.bottom = '100px';
-    }, jumpDuration / 2);
+      // Nhảy lên
+      dino.style.transition = `bottom ${jumpDuration / 2}ms ease-out`;
+      dino.style.bottom = 100 + jumpHeight + 'px';
 
-    setTimeout(() => {
-      isJumping = false;
-      hideChatBubble();
-    }, jumpDuration);
-  }
+      // Hiện khung chat ở trên khủng long
+      showChatBubble();
 
-  // Hiển thị khung chat với thông tin môn học tương ứng cây xương rồng gần nhất
-  function showChatBubble() {
-    // Tìm cây xương rồng gần khủng long nhất (phía phải khủng long trong khoảng 200px)
-    const cactuses = [...document.querySelectorAll('.cactus')];
-    let closest = null;
-    let closestDist = Infinity;
+      setTimeout(() => {
+        // Rơi xuống
+        dino.style.transition = `bottom ${jumpDuration / 2}ms ease-in`;
+        dino.style.bottom = '100px';
+      }, jumpDuration / 2);
 
-    const dinoRect = dino.getBoundingClientRect();
+      setTimeout(() => {
+        isJumping = false;
+        hideChatBubble();
+      }, jumpDuration);
+    }
 
-    for (const c of cactuses) {
-      const cRect = c.getBoundingClientRect();
-      const dist = cRect.left - dinoRect.right;
-      if (dist >= 0 && dist < closestDist && dist < 200) {
-        closestDist = dist;
-        closest = c;
+    // Hiển thị khung chat với thông tin môn học tương ứng cây xương rồng gần nhất
+    function showChatBubble() {
+      // Tìm cây xương rồng gần khủng long nhất (phía phải khủng long trong khoảng 200px)
+      const cactuses = [...document.querySelectorAll('.cactus')];
+      let closest = null;
+      let closestDist = Infinity;
+
+      const dinoRect = dino.getBoundingClientRect();
+
+      for (const c of cactuses) {
+        const cRect = c.getBoundingClientRect();
+        const dist = cRect.left - dinoRect.right;
+        if (dist >= 0 && dist < closestDist && dist < 200) {
+          closestDist = dist;
+          closest = c;
+        }
+      }
+
+      if (closest) {
+        const name = closest.dataset.name;
+        const info = closest.dataset.info;
+
+        chatBubble.style.display = 'block';
+        chatBubble.textContent = `${name}: ${info}`;
+
+        // Đặt vị trí chatBubble trên khủng long
+        const containerRect = gameContainer.getBoundingClientRect();
+        let left = dino.offsetLeft + 90; // sát bên phải dino
+        let top = dino.offsetTop - 10;
+
+        // Chỉnh cho không bị tràn ra ngoài màn hình
+        if (left + 200 > containerRect.width) {
+          left = dino.offsetLeft - 200;
+        }
+        if (top < 0) {
+          top = dino.offsetTop + 90;
+        }
+
+        chatBubble.style.left = left + 'px';
+        chatBubble.style.top = top + 'px';
+      } else {
+        chatBubble.style.display = 'none';
       }
     }
 
-    if (closest) {
-      const name = closest.dataset.name;
-      const info = closest.dataset.info;
-
-      chatBubble.style.display = 'block';
-      chatBubble.textContent = `${name}: ${info}`;
-
-      // Đặt vị trí chatBubble trên khủng long
-      const containerRect = gameContainer.getBoundingClientRect();
-      let left = dino.offsetLeft + 90; // sát bên phải dino
-      let top = dino.offsetTop - 10;
-
-      // Chỉnh cho không bị tràn ra ngoài màn hình
-      if (left + 200 > containerRect.width) {
-        left = dino.offsetLeft - 200;
-      }
-      if (top < 0) {
-        top = dino.offsetTop + 90;
-      }
-
-      chatBubble.style.left = left + 'px';
-      chatBubble.style.top = top + 'px';
-    } else {
+    function hideChatBubble() {
       chatBubble.style.display = 'none';
     }
-  }
 
-  function hideChatBubble() {
-    chatBubble.style.display = 'none';
-  }
-
-  // Xử lý sự kiện nhảy
-  function handleJump() {
-    jump();
-  }
-
-  window.addEventListener('keydown', e => {
-    if (e.code === 'Space') {
-      e.preventDefault();
-      handleJump();
+    // Xử lý sự kiện nhảy
+    function handleJump() {
+      jump();
     }
-  });
 
-  window.addEventListener('click', e => {
-    handleJump();
-  });
+    window.addEventListener('keydown', e => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        handleJump();
+      }
+    });
 
-  window.addEventListener('touchstart', e => {
-    handleJump();
-  });
+    window.addEventListener('click', e => {
+      handleJump();
+    });
 
-</script>
+    window.addEventListener('touchstart', e => {
+      handleJump();
+    });
+
+  </script>
 </body>
 </html>
