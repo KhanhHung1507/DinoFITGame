@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Game Khủng Long FIT - ĐH KHTN</title>
+<style>
+  /* Reset và căn giữa */
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
+  body, html {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('background-khtn.jpg') no-repeat center center fixed;
+    background-size: cover;
+    overflow: hidden;
+    user-select: none;
+  }
+  #gameContainer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  /* Khủng long */
+  #dino {
+    position: absolute;
+    bottom: 100px;
+    left: 50px;
+    width: 80px;
+    height: 80px;
+    background: url('dino-fit.png') no-repeat center/contain;
+    transition: bottom 0.2s;
+    z-index: 10;
+  }
+  /* Khung chat (bubble) */
+  #chatBubble {
+    position: absolute;
+    background: rgba(255,255,255,0.9);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    max-width: 180px;
+    font-size: 14px;
+    display: none;
+    z-index: 20;
+  }
+
+  /* Cây xương rồng (chướng ngại vật) */
+  .cactus {
+    position: absolute;
+    bottom: 100px;
+    width: 40px;
+    height: 80px;
+    background: green;
+    border-radius: 8px;
+    /* Tạm để chữ môn học */
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    line-height: 80px;
+    font-size: 12px;
+    user-select: none;
+  }
+
+  /* Animation chạy cactus */
+  @keyframes moveLeft {
+    0% {
+      right: -50px;
+    }
+    100% {
+      right: 110vw;
+    }
+  }
+
+  .cactus.move {
+    animation: moveLeft linear forwards;
+  }
+
+  /* Thông báo hướng dẫn */
+  #info {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    background: rgba(0,0,0,0.4);
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    user-select: none;
+  }
+
+</style>
+</head>
+<body>
+<div id="gameContainer">
+  <div id="dino"></div>
+  <div id="chatBubble"></div>
+  <div id="info">Nhấn Space hoặc click/chạm để khủng long nhảy và xem thông tin môn học</div>
+</div>
+
+<script>
+  const dino = document.getElementById('dino');
+  const chatBubble = document.getElementById('chatBubble');
+  const gameContainer = document.getElementById('gameContainer');
+
+  // Danh sách môn học (cactus info)
+  const courses = [
+    { name: 'Lập trình C', info: 'Môn học cơ bản về lập trình ngôn ngữ C.' },
+    { name: 'Cơ sở dữ liệu', info: 'Học về quản lý và xử lý dữ liệu.' },
+    { name: 'Mạng máy tính', info: 'Tìm hiểu về các giao thức mạng và truyền dữ liệu.' }
+  ];
+
+  // Tạo cây xương rồng (cactus)
+  let cactusIndex = 0;
+
+  function createCactus() {
+    const cactus = document.createElement('div');
+    cactus.classList.add('cactus');
+    // Gán môn học
+    const course = courses[cactusIndex % courses.length];
+    cactus.textContent = course.name;
+    cactus.dataset.name = course.name;
+    cactus.dataset.info = course.info;
+
+    cactus.style.bottom = '100px';
+    cactus.style.right = '-50px';
+
+    // Thời gian chạy cây xương rồng
+    const duration = 7000; // 7 giây để chạy hết màn hình
+    cactus.style.animationDuration = duration + 'ms';
+    cactus.classList.add('move');
+
+    gameContainer.appendChild(cactus);
+
+    // Xoá cây khi hết animation
+    cactus.addEventListener('animationend', () => {
+      cactus.remove();
+    });
+
+    cactusIndex++;
+    return cactus;
+  }
+
+  // Tạo liên tục cây xương rồng
+  setInterval(() => {
+    createCactus();
+  }, 3000);
+
+  // Nhảy dino
+  let isJumping = false;
+  let jumpHeight = 150;
+  let jumpDuration = 600;
+
+  function jump() {
+    if (isJumping) return;
+    isJumping = true;
+
+    // Nhảy lên
+    dino.style.transition = `bottom ${jumpDuration / 2}ms ease-out`;
+    dino.style.bottom = 100 + jumpHeight + 'px';
+
+    // Hiện khung chat ở trên khủng long
+    showChatBubble();
+
+    setTimeout(() => {
+      // Rơi xuống
+      dino.style.transition = `bottom ${jumpDuration / 2}ms ease-in`;
+      dino.style.bottom = '100px';
+    }, jumpDuration / 2);
+
+    setTimeout(() => {
+      isJumping = false;
+      hideChatBubble();
+    }, jumpDuration);
+  }
+
+  // Hiển thị khung chat với thông tin môn học tương ứng cây xương rồng gần nhất
+  function showChatBubble() {
+    // Tìm cây xương rồng gần khủng long nhất (phía phải khủng long trong khoảng 200px)
+    const cactuses = [...document.querySelectorAll('.cactus')];
+    let closest = null;
+    let closestDist = Infinity;
+
+    const dinoRect = dino.getBoundingClientRect();
+
+    for (const c of cactuses) {
+      const cRect = c.getBoundingClientRect();
+      const dist = cRect.left - dinoRect.right;
+      if (dist >= 0 && dist < closestDist && dist < 200) {
+        closestDist = dist;
+        closest = c;
+      }
+    }
+
+    if (closest) {
+      const name = closest.dataset.name;
+      const info = closest.dataset.info;
+
+      chatBubble.style.display = 'block';
+      chatBubble.textContent = `${name}: ${info}`;
+
+      // Đặt vị trí chatBubble trên khủng long
+      const containerRect = gameContainer.getBoundingClientRect();
+      let left = dino.offsetLeft + 90; // sát bên phải dino
+      let top = dino.offsetTop - 10;
+
+      // Chỉnh cho không bị tràn ra ngoài màn hình
+      if (left + 200 > containerRect.width) {
+        left = dino.offsetLeft - 200;
+      }
+      if (top < 0) {
+        top = dino.offsetTop + 90;
+      }
+
+      chatBubble.style.left = left + 'px';
+      chatBubble.style.top = top + 'px';
+    } else {
+      chatBubble.style.display = 'none';
+    }
+  }
+
+  function hideChatBubble() {
+    chatBubble.style.display = 'none';
+  }
+
+  // Xử lý sự kiện nhảy
+  function handleJump() {
+    jump();
+  }
+
+  window.addEventListener('keydown', e => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      handleJump();
+    }
+  });
+
+  window.addEventListener('click', e => {
+    handleJump();
+  });
+
+  window.addEventListener('touchstart', e => {
+    handleJump();
+  });
+
+</script>
+</body>
+</html>
