@@ -1,26 +1,23 @@
 html, body {
-  margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; 
+  height: 100%;
+  margin: 0;
+  padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Thẻ div làm background */
-#background {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: -1;  /* Để phía sau nội dung */
-  
+  /* Ảnh nền */
   background-image: url('background-khtn.jpg');
-  background-position: center center;
   background-repeat: no-repeat;
+  background-position: center top;
   background-size: cover;
+  /* background-attachment: fixed;  <-- Bỏ hoặc comment vì hay gây lỗi trên mobile */
+  overflow: hidden;
+  user-select: none;
 }
 
-/* Điều chỉnh cho mobile */
+/* Thêm media query để điều chỉnh trên mobile */
 @media (max-width: 768px) {
-  #background {
-    background-size: contain;    /* Hoặc đổi thành cover nếu muốn */
+  html, body {
     background-position: center top;
-    background-repeat: no-repeat;
-    background-color: white;
+    background-size: contain; /* Hoặc 'cover' tuỳ bạn thích */
+    /* background-attachment: scroll; */
   }
 }
