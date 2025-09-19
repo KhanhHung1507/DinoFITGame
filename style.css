@@ -1,16 +1,30 @@
-/* File: style.css */
-
-body, html {
-  height: 100%;
-  width: 100%;
+/* Đặt toàn bộ body và html chiếm toàn màn hình */
+html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Nền mặc định cho desktop */
+body {
   background-image: url('background-khtn.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  overflow: hidden;
-  user-select: none;
+}
+
+/* Xử lý riêng cho mobile */
+@media screen and (max-width: 768px) {
+  body {
+    background-image: url('background-khtn.jpg');
+    background-size: contain;         /* Ảnh co lại giữ nguyên tỷ lệ */
+    background-repeat: no-repeat;     /* Không lặp */
+    background-position: center top;  /* Căn giữa ảnh theo chiều ngang */
+    background-color: white;          /* Màu nền nếu ảnh không che hết */
+  }
 }
